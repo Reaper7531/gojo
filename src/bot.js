@@ -1,6 +1,12 @@
 // bot.js
 
-import { Client, GatewayIntentBits, Events, ActivityType } from "discord.js";
+import {
+  Client,
+  GatewayIntentBits,
+  Events,
+  ActivityType,
+  Collection,
+} from "discord.js";
 import { CONFIG } from "./config/config.js";
 import { RateLimiter } from "./utils/rateLimiter.js";
 import { DatabaseService } from "./database/dbService.js";

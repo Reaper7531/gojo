@@ -5,7 +5,6 @@ import { generateGojoPersona, isSpecialUser } from "../ai/persona.js";
 import { getOfflineResponse, getFallbackResponse } from "../utils/helpers.js";
 import { handleSearchCommand } from "../commands/searchCommand.js";
 import { handleValorantCommand } from "../commands/valorantCommand.js";
-import { handleSnipeCommand } from "../commands/snipeCommand.js";
 import { handleRussianRoulette } from "../commands/rouletteCommand.js";
 
 export async function handleMessage(

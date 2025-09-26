@@ -1,5 +1,5 @@
 import { EmbedBuilder, PermissionsBitField } from "discord.js";
-import { ROULETTE_GIF_PATH } from "../config/config";
+import { ROULETTE_GIF_PATH } from "../config/config.js";
 
 // Helper function for creating a delay
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
