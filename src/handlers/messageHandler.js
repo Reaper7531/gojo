@@ -1,12 +1,16 @@
 // src/handlers/messageHandler.js
-
-import { CONFIG, DOMAIN_EXPANSION_GIF_PATH } from "../config/config.js";
+import { EmbedBuilder, PermissionsBitField } from "discord.js";
+import {
+  CONFIG,
+  DOMAIN_EXPANSION_GIF_PATH,
+  MURASAKI_GIF_PATH,
+} from "../config/config.js";
 import { generateGojoPersona, isSpecialUser } from "../ai/persona.js";
 import { getOfflineResponse, getFallbackResponse } from "../utils/helpers.js";
 import { handleSearchCommand } from "../commands/searchCommand.js";
 import { handleValorantCommand } from "../commands/valorantCommand.js";
 import { handleRussianRoulette } from "../commands/rouletteCommand.js";
-
+import path from "path";
 export async function handleMessage(
   message,
   client,
@@ -92,7 +96,10 @@ export async function handleMessage(
     lowerContent.startsWith("russian roulette")
   ) {
     // Just call the function you created!
-    await handleRussianRoulette(message);
+    try {
+      await handleRussianRoulette(message);
+    } catch (e) {}
+    return;
   }
   if (
     ["domain expansion", "infinite void", "ryoiki tenkai"].some((cmd) =>
@@ -123,6 +130,90 @@ export async function handleMessage(
     return;
   }
 
+  if (
+    lowerContent.startsWith("murasaki") ||
+    lowerContent.startsWith("hollow purple")
+  ) {
+    // --- Permission Checks ---
+    if (
+      !message.member.permissions.has(PermissionsBitField.Flags.ManageMessages)
+    ) {
+      return message.reply(
+        "You think you're strong enough to command me? You need the 'Manage Messages' permission for that stunt."
+      );
+    }
+    if (
+      !message.guild.members.me.permissions.has(
+        PermissionsBitField.Flags.ManageMessages
+      )
+    ) {
+      return message.reply(
+        "Hmph. I can't do that. Grant me the 'Manage Messages' permission first."
+      );
+    }
+
+    // --- Argument Parsing and Validation ---
+    const args = commandContent.split(" ");
+    const amountToDelete = parseInt(args[1]);
+
+    if (isNaN(amountToDelete) || amountToDelete < 1 || amountToDelete > 99) {
+      return message.reply(
+        "You need to give me a number between 1 and 99, genius. `murasaki 10` for example."
+      );
+    }
+
+    // ======================== NEW GRACEFUL LOGIC ========================
+    try {
+      // Step 1: Delete the user's command message IMMEDIATELY for instant feedback.
+      await message.delete();
+
+      // Step 2: Bulk delete the requested number of messages.
+      // The `true` filter prevents it from crashing on messages older than 14 days.
+      const fetchedMessages = await message.channel.bulkDelete(
+        amountToDelete,
+        true
+      );
+
+      // We check if any messages were actually deleted.
+      if (fetchedMessages.size === 0) {
+        const warning = await message.channel.send(
+          "Couldn't find any recent messages to delete. They're probably older than 14 days."
+        );
+        setTimeout(() => warning.delete().catch(() => {}), 7000);
+        return;
+      }
+
+      // Step 3: Send the final confirmation embed now that the work is done.
+      const gifFileName = path.basename(MURASAKI_GIF_PATH);
+      const embed = new EmbedBuilder()
+        .setColor("#9370DB") // A nice purple color
+        .setTitle("Hollow Technique: Purple")
+        .setDescription(
+          `Imaginary mass has been erased. Obliterated **${fetchedMessages.size}** message(s).`
+        )
+        .setImage(`attachment://${gifFileName}`)
+        .setTimestamp();
+
+      const reply = await message.channel.send({
+        embeds: [embed],
+        files: [MURASAKI_GIF_PATH],
+      });
+
+      // Step 4: Clean up the confirmation message after a delay.
+      setTimeout(() => {
+        reply.delete().catch(() => {});
+      }, 13000); // 13 seconds
+    } catch (error) {
+      console.error("Error in Murasaki command:", error);
+      // This error message will appear if the bot fails for other reasons (e.g., file permissions).
+      const errorMsg = await message.channel.send(
+        "⚠️ **Gojo got stabbed by toji no hollow purple for you**"
+      );
+      setTimeout(() => errorMsg.delete().catch(() => {}), 10000);
+    }
+    return;
+    // =====================================================================
+  }
   // ===== Default AI Chat Fallback =====
   try {
     // Your rate limiting logic is perfect and remains unchanged.
