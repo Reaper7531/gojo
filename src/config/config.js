@@ -34,16 +34,21 @@ export const CONFIG = {
 // Define the local file path to your GIF
 export const DOMAIN_EXPANSION_GIF_PATH = path.join(
   __dirname,
-  "../../public/images/void.gif"
+  "../../public/images/void.gif",
 );
 export const ROULETTE_GIF_PATH = path.join(
   __dirname,
-  "../../public/images/roulette.gif"
+  "../../public/images/roulette.gif",
+);
+
+export const WSLASH_GIF_PATH = path.join(
+  __dirname,
+  "../../public/images/slash.gif",
 );
 
 export const MURASAKI_GIF_PATH = path.resolve(
   rootDir,
   "public",
   "images",
-  "purple.gif"
+  "purple.gif",
 );
